@@ -1,0 +1,9 @@
+**/*
+!LICENSE
+!package*.json
+!images
+!webview/export-profiles/build
+!out
+!icon.png
+!README*.md
+!l10n

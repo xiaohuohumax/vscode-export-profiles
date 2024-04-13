@@ -1,0 +1,68 @@
+{
+  "name": "vscode-export-profiles",
+  "displayName": "VSCode Export Profiles",
+  "description": "vscode export profiles",
+  "private": true,
+  "version": "0.0.0",
+  "publisher": "xiaohuohumax",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiaohuohumax/vscode-export-profiles.git"
+  },
+  "engines": {
+    "vscode": "^1.88.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "export",
+    "profiles",
+    "profile",
+    "user profile",
+    "merge profile"
+  ],
+  "main": "./out/extension.js",
+  "l10n": "./l10n",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscode-export-profiles.exportProfiles",
+        "title": "%vscode-export-profiles.exportProfiles.title%"
+      }
+    ]
+  },
+  "scripts": {
+    "install:all": "npm install && npm install --prefix=webview/export-profiles",
+    "vscode:prepublish": "npm run compile",
+    "compile": "npm run build",
+    "build": "npm run build:export-profiles && vite build --emptyOutDir",
+    "build:export-profiles": "npm run build --prefix=webview/export-profiles",
+    "watch": "vite build --watch --mode development --emptyOutDir",
+    "watch:export-profiles": "npm run watch --prefix=webview/export-profiles",
+    "changeset": "changeset",
+    "lint:fix": "eslint --ext .ts,.mts,.d.ts --fix .",
+    "release": "npm run build && changeset publish",
+    "vsce-publish": "vsce publish",
+    "vsce-package": "vsce package"
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "^0.5.0",
+    "@changesets/cli": "^2.27.1",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.12.7",
+    "@types/vscode": "^1.88.0",
+    "@typescript-eslint/eslint-plugin": "^7.3.1",
+    "@typescript-eslint/parser": "^7.3.1",
+    "@vscode/test-cli": "^0.0.6",
+    "@vscode/test-electron": "^2.3.9",
+    "@vscode/test-web": "^0.0.53",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.2.7"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.2.1"
+  }
+}

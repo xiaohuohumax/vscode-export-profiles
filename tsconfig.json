@@ -1,0 +1,32 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "out",
+    "lib": [
+      "ESNext"
+    ],
+    "types": [
+      "vite/client"
+    ],
+    "paths": {
+      "#/*": [
+        "./*"
+      ],
+      "@/*": [
+        "./src/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ]
+    },
+  },
+  "include": [
+    "src",
+    "types",
+    "webview/types",
+    "vite.config.mts",
+  ]
+}

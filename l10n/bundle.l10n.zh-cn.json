@@ -1,0 +1,14 @@
+{
+  "Export": "导出",
+  "Cancel": "取消",
+  "Previous": "上一个",
+  "Next": "下一个",
+  "No profile selected": "未选择配置文件",
+  "From default profile": "从默认配置文件",
+  "Save profiles": "保存配置文件",
+  "Export Profiles": "导出配置文件",
+  "Save success": "保存成功",
+  "Save failed": "保存失败",
+  "Select profiles": "选择配置文件",
+  "Select profiles to export": "选择要导出的配置文件"
+}

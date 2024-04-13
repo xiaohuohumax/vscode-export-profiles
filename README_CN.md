@@ -10,27 +10,27 @@
 
 [English](./README.md)
 
-VSCode Extension: Batch Export Profiles
+VSCode 扩展: 批量导出配置文件(profile)
 
-## Introduction
+## 介绍
 
-**Export Profiles** is a VSCode extension that can help you batch export VSCode profile, merge multiple profiles, and generate `.code-profile` files for easy import.
+批量导出 VSCode 配置文件是一个 VSCode 扩展，可以帮助你批量导出 VSCode 配置文件，合并多个配置文件，并生成 `.code-profile` 文件，方便导入。
 
-## Use Cases
+## 使用场景
 
-+ When there are multiple profiles, such as `Vue: Development Environment`, `Remote: Remote Development`, `AI: Code Completion`.
-+ When multiple environments need to be developed simultaneously, you can use this extension to batch export profiles, merge the profiles of different environments into a single `.code-profile` file, and then import and generate a new configuration file.
++ 存在多个配置文件时，比如 `Vue:开发环境`、`Remote:远程开发`、`AI:代码补全`。
++ 当需要多个环境同时开发时，可以利用此扩展批量导出配置文件，将不同环境的配置文件合并为一个 `.code-profile` 文件，然后导入生成新的配置文件。
 
-## Installation
+## 安装
 
-Search and install `VSCode Export Profiles` in the VSCode Extension Marketplace
+在 VSCode 扩展市场搜索并安装 `VSCode Export Profiles`
 
-## Usage
+## 使用
 
-+ Call the command palette `ctrl + shift + p`
-+ Search for `Export Profiles`
++ 调用命令面板 `ctrl + shift + p`
++ 搜索 `批量导出配置文件` 或者 `Export Profiles`
 
-## Demo
+## 演示
 
 ![select-profiles](/images/select-profiles.png)
 ![set-profiles](/images/set-profiles.png)
@@ -40,12 +40,12 @@ Search and install `VSCode Export Profiles` in the VSCode Extension Marketplace
 ![new-profiles](/images/new-profiles.png)
 ![result](/images/result.png)
 
-# Links
+# 链接
 
 - [Homepage](https://github.com/xiaohuohumax/vscode-export-profiles#readme)
 - [Issue](https://github.com/xiaohuohumax/vscode-export-profiles/issues)
 - [Marketplace](https://marketplace.visualstudio.com/items?itemName=xiaohuohumax.vscode-export-profiles)
 
-## Finally
+## 最后
 
-Have fun! 🎉🎉🎉🎉
+玩的开心 🎉🎉🎉🎉

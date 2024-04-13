@@ -1,0 +1,17 @@
+.changeset
+.github
+.editorconfig
+images
+
+.vscode*
+.git*
+
+.env*
+.eslint*
+.formatignore
+LICENSE
+*.png
+*.md
+*.txt
+*.svg
+build/
