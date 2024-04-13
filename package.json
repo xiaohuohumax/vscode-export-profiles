@@ -34,7 +34,7 @@
     ]
   },
   "scripts": {
-    "install:all": "npm install && npm install --prefix=webview/export-profiles",
+    "install:all": "npm install --frozen-lockfile && npm install --prefix=webview/export-profiles --frozen-lockfile",
     "vscode:prepublish": "npm run compile",
     "compile": "npm run build",
     "build": "npm run build:export-profiles && vite build --emptyOutDir",

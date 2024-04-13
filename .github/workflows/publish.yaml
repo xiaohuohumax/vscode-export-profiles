@@ -23,7 +23,7 @@ jobs:
           cache: npm
 
       - name: Install
-        run: npm install --frozen-lockfile
+        run: npm run install:all
 
       - name: Create Release Pull Request
         id: changesets
