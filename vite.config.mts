@@ -18,7 +18,7 @@ export default defineConfig((env: ConfigEnv): UserConfig => {
       rollupOptions: {
         preserveEntrySignatures: 'strict',
         input: './src/extension.ts',
-        external: ['vscode', 'os', 'path'],
+        external: ['vscode', 'os', 'path', 'util'],
         output: [
           {
             dir: 'out',

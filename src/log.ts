@@ -1,10 +1,22 @@
 import { LogLevel, window } from 'vscode';
+import util from 'util';
 
 const logLevel: LogLevel = LogLevel[import.meta.env.VITE_LOG_LEVEL];
 
 const outputChannel = logLevel !== LogLevel.Off
   ? window.createOutputChannel(import.meta.env.VITE_OUTPUT_CHANNEL_NAME)
   : null;
+
+/**
+ * 格式化日志消息
+ * @param msgs 日志内容
+ * @returns 
+ */
+function formatMessage(...msgs: unknown[]): string {
+  return msgs.map(m =>
+    typeof m === 'string' ? m : util.inspect(m, false, null, false)
+  ).join(' ');
+}
 
 /**
  * 打印日志
@@ -28,7 +40,7 @@ function base(level: LogLevel, ...msgs: unknown[]) {
     // 时间
     [':time', new Date().toLocaleString()],
     // 消息主体
-    [':msg', msgs.join(' ')],
+    [':msg', formatMessage(...msgs)],
     // 日志等级
     [':level', LogLevel[level].padStart(7, ' ')],
     // 调用者信息

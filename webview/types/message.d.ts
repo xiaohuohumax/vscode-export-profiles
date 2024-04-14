@@ -1,6 +1,12 @@
 // 消息类型定义
 type MessageCommand = 'refreshProfiles' | 'openResource' | 'saveFile' | 'loadL10n'
 
+// webview 消息请求回调函数
+type CommandCallbackFunction = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key in MessageCommand]?: (...args: any[]) => any;
+};
+
 // 消息格式
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface Message<T = any> {
