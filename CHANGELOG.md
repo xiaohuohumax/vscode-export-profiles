@@ -1,5 +1,11 @@
 # vscode-export-profiles
 
+## 0.2.0
+
+### Minor Changes
+
+- [`292613a`](https://github.com/xiaohuohumax/vscode-export-profiles/commit/292613a9821e2c4fb334e50dc6752e886e721a2a) Thanks [@xiaohuohumax](https://github.com/xiaohuohumax)! - 增加导出默认配置, 添加断开链接提示, 导出配置文件名称优化, 修复 profile 使用默认配置异常
+
 ## 0.1.0
 
 ### Minor Changes
