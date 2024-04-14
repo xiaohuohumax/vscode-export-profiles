@@ -7,3 +7,4 @@ import '@idux/components/space/style/index.css';
 import '@idux/components/spin/style/index.css';
 import '@idux/components/style/core/reset.css';
 import '@idux/components/tree/style/index.css';
+import '@idux/components/result/style/index.css';

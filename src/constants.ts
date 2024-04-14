@@ -4,10 +4,10 @@ export const cKeys = {
   exportProfiles: app + '.exportProfiles'
 };
 
-export const defaultCodeProfileName = 'index.code-profile';
+export const codeProfileFileExt = 'code-profile';
 
 export default {
   app,
   cKeys,
-  defaultCodeProfileName
+  codeProfileFileExt
 };

@@ -4,9 +4,10 @@ import { type App } from 'vue';
 import './style';
 
 import { createGlobalConfig } from '@idux/components/config';
-import { IDUX_ICON_DEPENDENCIES, addIconDefinitions } from '@idux/components/icon';
+import { Down, Right, addIconDefinitions, Disconnect } from '@idux/components/icon';
 
-addIconDefinitions(IDUX_ICON_DEPENDENCIES);
+// 图标
+addIconDefinitions([Down, Right, Disconnect]);
 
 const install = (app: App): void => {
   app.use(createGlobalConfig({}));

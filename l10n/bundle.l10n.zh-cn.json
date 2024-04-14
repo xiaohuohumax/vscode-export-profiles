@@ -5,11 +5,14 @@
   "Next": "下一个",
   "No profile selected": "未选择配置文件",
   "From default profile": "从默认配置文件",
+  "Default profile": "默认配置文件",
   "Save profiles": "保存配置文件",
   "Export Profiles": "导出配置文件",
   "Export success": "导出成功",
   "Export failed": "导出失败",
   "Select profiles": "选择配置文件",
   "Select profiles to export": "选择要导出的配置文件",
-  "Export profiles error: {0}": "导出配置文件异常: {0}"
+  "Export profiles error: {0}": "导出配置文件异常: {0}",
+  "Connection Failed, please close this page and try again": "链接失效，请关闭此页面并重试",
+  "Connection Failed": "链接失效"
 }

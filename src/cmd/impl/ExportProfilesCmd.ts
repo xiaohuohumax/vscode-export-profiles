@@ -1,12 +1,11 @@
-import showEscPick from '#/src/components/pick/showEscPick';
 import log from '#/src/log';
 import ExportProfilesPanel from '#/src/panels/ExportProfilesPanel';
 import fsUtil from '#/src/utils/fsUtil';
-import constants from '@/constants';
 import path from 'path';
 import { Uri, commands, l10n, window } from 'vscode';
 import { LoadProfilesCmd } from './LoadProfilesCmd';
-import { EAborted } from '#/src/error';
+import { EAborted, EEscAborted } from '#/src/error';
+import constants from '#/src/constants';
 
 /**
  * 导出 profile 配置
@@ -149,9 +148,13 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
    */
   async saveFile(data: SaveFileMessageData[]) {
     try {
+      const fileName = data.map(d => d.profileTitle).join(' + ');
       const saveUri = await window.showSaveDialog({
         title: l10n.t('Save profiles'),
-        defaultUri: Uri.file(constants.defaultCodeProfileName),
+        defaultUri: Uri.file(`${fileName}.${constants.codeProfileFileExt}`),
+        filters: {
+          'Code Profile': [constants.codeProfileFileExt]
+        }
       });
 
       if (!saveUri) {
@@ -169,6 +172,7 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
       ExportProfilesPanel.dispose();
 
       window.showInformationMessage(l10n.t('Export success'));
+      log.info(l10n.t('Export success'));
     } catch (err) {
       const e = err as Error;
       window.showErrorMessage(l10n.t('Export failed') + ':' + e.message);
@@ -184,6 +188,16 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
     ExportProfilesPanel.postMessage({
       command: 'loadL10n',
       data: l10n.bundle,
+    });
+  }
+
+  /**
+   * webview请求ping
+   */
+  ping() {
+    ExportProfilesPanel.postMessage({
+      command: 'ping',
+      data: 'pong',
     });
   }
 
@@ -203,25 +217,56 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
    * @param userDataProfiles 用户数据配置信息
    * @returns 
    */
-  protected async selectUserDataProfile(userDataProfiles: UserDataProfile[]) {
-    const result = await showEscPick(
-      userDataProfiles.map(w => w.name),
+  protected async selectUserDataProfile(userDataProfiles: UserDataProfile[]): Promise<UserDataProfile[]> {
+    const result = await window.showQuickPick(
+      userDataProfiles.map(w => ({
+        ...w,
+        label: w.name,
+        description: w.isDefault ? l10n.t('Default') : undefined,
+      })),
       {
         title: l10n.t('Select profiles'),
         placeHolder: l10n.t('Select profiles to export'),
-        esc: l10n.t('Cancel'),
         canPickMany: true
       });
-    return userDataProfiles.filter(w => result.includes(w.name));
+    if (result === undefined) {
+      throw new EEscAborted(l10n.t('Cancel'));
+    }
+    return result;
+  }
+
+  /**
+   * 获取全部用户数据配置文件
+   * @returns 
+   */
+  async getAllUserDataProfiles() {
+    const { userDataProfiles } = await this.getStorage();
+
+    // 默认配置放到最前面
+    userDataProfiles.unshift({
+      location: '',
+      name: 'Default',
+      isDefault: true,
+      useDefaultFlags: {
+        settings: true,
+        keybindings: true,
+        snippets: true,
+        tasks: true,
+        extensions: true
+      }
+    });
+
+    return userDataProfiles;
   }
 
   async run() {
-    const { userDataProfiles } = await this.getStorage();
-    // 加载profiles
-    const userDataProfile = await this.selectUserDataProfile(userDataProfiles);
-    log.debug('select userDataProfile', userDataProfile.map(w => w.name));
+    const userDataProfiles = await this.getAllUserDataProfiles();
 
-    this.profiles = await this.formatUserDataProfiles(userDataProfile);
+    // 加载profiles
+    const selectUserDataProfiles = await this.selectUserDataProfile(userDataProfiles);
+    log.debug('select userDataProfile', selectUserDataProfiles.map(w => w.name));
+
+    this.profiles = await this.formatUserDataProfiles(selectUserDataProfiles);
 
     const isInit = ExportProfilesPanel.isInit();
     // 显示webview

@@ -35,6 +35,8 @@ type ProfileResource = ProfileResourceMeta & {
 interface Profile {
   // 标题
   title: string
+  // 是否默认配置
+  isDefault: boolean
   // 使用默认配置情况
   useDefaultFlags: UseDefaultFlags
   // 扩展

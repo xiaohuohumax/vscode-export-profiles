@@ -3,15 +3,6 @@ import fsUtil from '#/src/utils/fsUtil';
 import ICmd from '../iCmd';
 import os from 'os';
 
-// profile 是否使用默认配置
-const defaultUseDefaultFlags: UseDefaultFlags = {
-  settings: false,
-  keybindings: false,
-  snippets: false,
-  tasks: false,
-  extensions: false,
-};
-
 /**
  * 随机生成字符串
  * @param length 长度
@@ -116,14 +107,13 @@ export class LoadProfilesCmd extends ICmd {
    * @returns 
    */
   protected async getExtensionsByUserDataProfile(userDataProfile: UserDataProfile): Promise<ProfileExtension[]> {
-    const { useDefaultFlags } = userDataProfile;
     const extensions: Extension[] = [];
     // 加载全局扩展
     const globalExtensionsPath = this.homePathResolve('.vscode', 'extensions', 'extensions.json');
     const globalExtensions: Extension[] = await this.getExtensionByExtensionJsonFile(globalExtensionsPath);
 
     // 加载私有扩展
-    if (useDefaultFlags === undefined || useDefaultFlags.extensions === false) {
+    if (!userDataProfile?.useDefaultFlags?.extensions) {
       // 加载默认全局扩展
       globalExtensions.forEach(e => e.metadata.isApplicationScoped && extensions.push(e));
       // 加载私有扩展
@@ -158,12 +148,10 @@ export class LoadProfilesCmd extends ICmd {
    * @returns 
    */
   protected async getSettingsByUserDataProfile(userDataProfile: UserDataProfile): Promise<ProfileResource[]> {
-    const { useDefaultFlags } = userDataProfile;
-
     let isDefault = true;
     let settingPath = this.userPathResolve('settings.json');
 
-    if (useDefaultFlags === undefined || useDefaultFlags.settings === false) {
+    if (!userDataProfile?.useDefaultFlags?.settings) {
       settingPath = this.userPathResolve('profiles', userDataProfile.location, 'settings.json');
       isDefault = false;
     }
@@ -193,12 +181,10 @@ export class LoadProfilesCmd extends ICmd {
    * @returns 
    */
   protected async getKeybindingsByUserDataProfile(userDataProfile: UserDataProfile): Promise<ProfileResource[]> {
-    const { useDefaultFlags } = userDataProfile;
-
     let isDefault = true;
     let keybindingPath = this.userPathResolve('keybindings.json');
 
-    if (useDefaultFlags === undefined || useDefaultFlags.keybindings === false) {
+    if (!userDataProfile?.useDefaultFlags?.keybindings) {
       keybindingPath = this.userPathResolve('profiles', userDataProfile.location, 'keybindings.json');
       isDefault = false;
     }
@@ -228,12 +214,10 @@ export class LoadProfilesCmd extends ICmd {
    * @returns 
    */
   protected async getSnippetsByUserDataProfile(userDataProfile: UserDataProfile): Promise<ProfileResource[]> {
-    const { useDefaultFlags } = userDataProfile;
-
     let isDefault = true;
-    let snippetsFolderPath = this.userPathResolve('snippets');
+    let snippetsFolderPath: Uri = this.userPathResolve('snippets');
 
-    if (useDefaultFlags === undefined || useDefaultFlags.snippets === false) {
+    if (!userDataProfile?.useDefaultFlags?.snippets) {
       snippetsFolderPath = this.userPathResolve('profiles', userDataProfile.location, 'snippets');
       isDefault = false;
     }
@@ -273,7 +257,8 @@ export class LoadProfilesCmd extends ICmd {
     for (const userDataProfile of userDataProfiles) {
       result.push({
         title: userDataProfile.name,
-        useDefaultFlags: Object.assign(defaultUseDefaultFlags, userDataProfile),
+        isDefault: userDataProfile.isDefault ?? false,
+        useDefaultFlags: userDataProfile.useDefaultFlags ?? {},
         settings: await this.getSettingsByUserDataProfile(userDataProfile),
         keybindings: await this.getKeybindingsByUserDataProfile(userDataProfile),
         snippets: await this.getSnippetsByUserDataProfile(userDataProfile),

@@ -1,5 +1,5 @@
 // 消息类型定义
-type MessageCommand = 'refreshProfiles' | 'openResource' | 'saveFile' | 'loadL10n'
+type MessageCommand = 'refreshProfiles' | 'openResource' | 'saveFile' | 'loadL10n' | 'ping'
 
 // webview 消息请求回调函数
 type CommandCallbackFunction = {

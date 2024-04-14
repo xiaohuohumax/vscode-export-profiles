@@ -5,7 +5,7 @@ import vscode from '../vscode.ts';
  * 初始化 l10n 模块
  */
 async function init() {
-  const contents = await vscode.getData<l1on.l10nJsonFormat>({ command: 'loadL10n' });
+  const contents = await vscode.getData<l1on.l10nJsonFormat>({ command: 'loadL10n' }, -1);
   l1on.config({ contents });
 }
 

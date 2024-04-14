@@ -1,7 +1,15 @@
 <template>
   <div class="h-svh b-1">
+    <!-- 链接失效提示 -->
+    <IxResult class="h-full flex justify-center flex-col" status="warning" v-if="isPingFailed"
+      :title="l10n.t('Connection Failed')"
+      :subtitle="l10n.t('Connection Failed, please close this page and try again')">
+      <template #icon>
+        <IxIcon name="disconnect" color="var(--vscode-editorWarning-foreground)" />
+      </template>
+    </IxResult>
     <!-- 加载 -->
-    <IxSpin :spinning="spinning" class="h-full" v-if="spinning"></IxSpin>
+    <IxSpin :spinning="spinning" class="h-full" v-else-if="spinning"></IxSpin>
     <template v-else>
       <!-- 空白 -->
       <div class="flex justify-center items-center h-full" v-if="!hadProfileNode">
@@ -24,6 +32,7 @@
         <!-- 标题 -->
         <IxHeader class="flex-shrink-0 justify-between mb-10" showBar size="lg">
           [{{ active }}/{{ profileNodes.length }}] {{ profile.title }}
+          <span class="opacity-70">{{ profile.isDefault ? l10n.t('Default profile') : '' }}</span>
         </IxHeader>
         <!-- profile 树形控件 -->
         <div class="flex-grow-1 overflow-hidden">
@@ -50,7 +59,7 @@
 
 <script setup lang="ts">
 import type { TreeNode } from '@idux/components';
-import { IxButton, IxEmpty, IxHeader, IxIcon, IxSpace, IxSpin, IxTree } from '@idux/components';
+import { IxButton, IxEmpty, IxHeader, IxIcon, IxSpace, IxSpin, IxTree, IxResult } from '@idux/components';
 import { computed, onUnmounted, ref, toRaw } from 'vue';
 import l10n from '../plugin/l10n';
 import vscode, { MessageListener } from '../vscode';
@@ -70,6 +79,7 @@ type SteepTreeNode = TreeNode & {
 interface ProfileNode {
   title: string
   description: string
+  isDefault: boolean
   treeData: SteepTreeNode[]
   checkedKeys: string[]
   expandedKeys: string[]
@@ -124,6 +134,7 @@ function formatTreeData(profile: Profile): ProfileNode {
   return {
     title: profile.title,
     description: profile.title,
+    isDefault: profile.isDefault,
     treeData: [{
       label: profile.title,
       key: "Profile",
@@ -174,11 +185,10 @@ const pre = () => active.value -= 1
 const next = () => active.value += 1
 let saveI: number | undefined
 const save = () => {
-  if (saveI) {
-    return
+  if (!saveI) {
+    saveI = setTimeout(() => saveI = undefined, 1000)
+    vscode.saveFile(toRaw(profileNodes.value).map(p => ({ profileTitle: p.title, keys: p.checkedKeys })))
   }
-  saveI = setTimeout(() => saveI = undefined, 1000)
-  vscode.saveFile(toRaw(profileNodes.value).map(p => ({ profileTitle: p.title, keys: p.checkedKeys })))
 }
 
 const profile = computed(() => profileNodes.value[active.value - 1])
@@ -196,4 +206,18 @@ function openResource(node: SteepTreeNode) {
     data: node.openData!,
   })
 }
+
+// 心跳检查
+const isPingFailed = ref(false)
+
+const pingInterval = setInterval(async () => {
+  try {
+    await vscode.getData<string>({ command: 'ping' }, 2000);
+  } catch (_) {
+    clearInterval(pingInterval);
+    isPingFailed.value = true;
+  }
+}, 3000);
+
+onUnmounted(() => clearInterval(pingInterval))
 </script>

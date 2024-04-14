@@ -32,11 +32,15 @@ function postMessage(message: Message) {
 /**
  * 同步获取数据
  * @param message 消息
+ * @param timeout 超时时间 (ms) 负数表示不超时
  * @returns 
  */
-function getData<T>(message: Message<T>) {
+function getData<T>(message: Message<T>, timeout: number = 5000) {
   postMessage(message);
-  return new Promise<T>((resolve) => {
+  return new Promise<T>((resolve, reject) => {
+    // 超时处理
+    timeout > 0 && setTimeout(() => reject(), timeout);
+    // 监听消息
     const eventListener = (event: MessageEvent) => {
       const data = event.data as Message<T>;
       if (data.command === message.command && data.data) {
