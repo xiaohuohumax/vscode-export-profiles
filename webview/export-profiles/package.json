@@ -10,19 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/vscode-webview": "^1.57.5",
     "@vscode/l10n": "^0.0.18",
-    "vscode-export-profiles": "file:../..",
     "vue": "^3.4.21"
   },
   "devDependencies": {
+    "@types/vscode-webview": "^1.57.5",
+    "vscode-export-profiles": "file:../..",
     "@idux/cdk": "^2.1.1",
     "@idux/components": "^2.1.1",
     "@vitejs/plugin-vue": "^5.0.4",
     "typescript": "^5.2.2",
     "unocss": "^0.59.1",
     "vite": "^5.2.0",
-    "vite-plugin-static-copy": "^1.0.2",
     "vue-tsc": "^2.0.6"
   }
 }

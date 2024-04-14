@@ -52,7 +52,7 @@
 import type { TreeNode } from '@idux/components';
 import { IxButton, IxEmpty, IxHeader, IxIcon, IxSpace, IxSpin, IxTree } from '@idux/components';
 import { computed, onUnmounted, ref, toRaw } from 'vue';
-import l10n from '../l10n';
+import l10n from '../plugin/l10n';
 import vscode, { MessageListener } from '../vscode';
 
 const spinning = ref(true)
@@ -125,7 +125,7 @@ function formatTreeData(profile: Profile): ProfileNode {
     title: profile.title,
     description: profile.title,
     treeData: [{
-      label: "Profile",
+      label: profile.title,
       key: "Profile",
       children: [settingTreeData, keybindingTreeData, snippetTreeData, extensionTreeData]
     }],

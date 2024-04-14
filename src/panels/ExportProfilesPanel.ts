@@ -1,11 +1,12 @@
 import { Disposable, Uri, ViewColumn, Webview, WebviewPanel, l10n, window } from 'vscode';
 
-export function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) {
+export function getUri(webview: Webview, extensionUri: Uri, ...pathList: string[]) {
   return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList));
 }
 
 let _panel: WebviewPanel | undefined;
 const _disposables: Disposable[] = [];
+const webviewBuildPath = ['webview', 'export-profiles', 'build'];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface Listener<T = any> { (e: Message<T>): any; }
@@ -13,8 +14,8 @@ interface Listener<T = any> { (e: Message<T>): any; }
 const _listeners: Listener[] = [];
 
 function _getWebviewContent(webview: Webview, extensionUri: Uri) {
-  const stylesUri = getUri(webview, extensionUri, ['webview', 'export-profiles', 'build', 'assets', 'index.css']);
-  const scriptUri = getUri(webview, extensionUri, ['webview', 'export-profiles', 'build', 'assets', 'index.js']);
+  const stylesUri = getUri(webview, extensionUri, ...webviewBuildPath, 'assets', 'index.css');
+  const scriptUri = getUri(webview, extensionUri, ...webviewBuildPath, 'assets', 'index.js');
 
   return `
     <!DOCTYPE html>
@@ -23,7 +24,7 @@ function _getWebviewContent(webview: Webview, extensionUri: Uri) {
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" type="text/css" href="${stylesUri}">
-        <title>Hello World</title>
+        <title>Export Profiles</title>
       </head>
       <body>
         <div id="app"></div>
@@ -56,9 +57,14 @@ function addWebviewMessageListener<T>(listener: Listener<T>) {
  */
 function render(extensionUri: Uri) {
   if (_panel) {
-    // 如果面板已经存在，则直接显示
-    _panel.reveal(ViewColumn.One);
-    return;
+    if (import.meta.env.PROD) {
+      // 如果面板已经存在，则直接显示
+      _panel.reveal(ViewColumn.One);
+      return;
+    } else {
+      // 开发环境，如果面板已经存在，则销毁，方便调试界面
+      dispose();
+    }
   }
   const panel = window.createWebviewPanel(
     'showExportProfiles',
@@ -69,7 +75,7 @@ function render(extensionUri: Uri) {
       retainContextWhenHidden: true,
       localResourceRoots: [
         Uri.joinPath(extensionUri, 'out'),
-        Uri.joinPath(extensionUri, 'webview/export-profiles/build')
+        Uri.joinPath(extensionUri, ...webviewBuildPath)
       ],
     }
   );

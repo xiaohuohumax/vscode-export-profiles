@@ -37,12 +37,14 @@ function postMessage(message: Message) {
 function getData<T>(message: Message<T>) {
   postMessage(message);
   return new Promise<T>((resolve) => {
-    window.addEventListener('message', (event) => {
+    const eventListener = (event: MessageEvent) => {
       const data = event.data as Message<T>;
       if (data.command === message.command && data.data) {
+        window.removeEventListener('message', eventListener);
         resolve(data.data);
       }
-    });
+    };
+    window.addEventListener('message', eventListener);
   });
 }
 

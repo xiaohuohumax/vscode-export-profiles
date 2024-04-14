@@ -1,5 +1,5 @@
 import * as l1on from '@vscode/l10n';
-import vscode from './vscode.ts';
+import vscode from '../vscode.ts';
 
 /**
  * 初始化 l10n 模块

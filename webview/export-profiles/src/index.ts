@@ -1,10 +1,11 @@
-import 'virtual:uno.css';
 import { createApp } from 'vue';
 import App from './App.vue';
-import Idux from './idux.ts';
 import './index.css';
-import * as l1on from './l10n.ts';
+import Idux from './plugin/idux';
+import * as l1on from './plugin/l10n';
 
 l1on.init();
+
 const app = createApp(App);
-app.use(Idux).mount('#app');
+app.use(Idux);
+app.mount('#app');

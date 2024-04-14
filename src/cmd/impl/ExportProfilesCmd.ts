@@ -9,7 +9,7 @@ import { FileType, Uri, commands, extensions, l10n, window } from 'vscode';
 import ICmd from '../iCmd';
 
 // profile 是否使用默认配置
-const defaultUseDefaultFlags = {
+const defaultUseDefaultFlags: UseDefaultFlags = {
   settings: false,
   keybindings: false,
   snippets: false,
@@ -195,13 +195,18 @@ export class ExportProfilesCmd extends ICmd implements CommandCallbackFunction {
       // 关闭panel
       ExportProfilesPanel.dispose();
 
-      window.showInformationMessage(l10n.t('Save success'));
+      window.showInformationMessage(l10n.t('Export success'));
     } catch (err) {
-      window.showErrorMessage(l10n.t('Save failed'));
-      log.error(l10n.t('Save failed'), err);
+      const e = err as Error;
+      window.showErrorMessage(l10n.t('Export failed') + ':' + e.message);
+      log.error(l10n.t('Export failed'));
+      log.error(e.stack);
     }
   }
 
+  /**
+   * webview请求l10n资源
+   */
   loadL10n() {
     ExportProfilesPanel.postMessage({
       command: 'loadL10n',
@@ -492,5 +497,9 @@ export class ExportProfilesCmd extends ICmd implements CommandCallbackFunction {
     ExportProfilesPanel.render(this.context.extensionUri);
     // 刷新profiles
     isInit && this.refreshProfiles();
+  }
+
+  async deactivate() {
+    ExportProfilesPanel.dispose();
   }
 }

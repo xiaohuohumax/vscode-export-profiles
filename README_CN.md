@@ -8,7 +8,7 @@
   <img alt="Stars" src="https://img.shields.io/github/stars/xiaohuohumax/vscode-export-profiles.svg"/>
 </p>
 
-[English](./README.md)
+[English](/README.md)
 
 VSCode 扩展: 批量导出配置文件(profile)
 

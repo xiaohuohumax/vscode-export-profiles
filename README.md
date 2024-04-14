@@ -8,7 +8,7 @@
   <img alt="Stars" src="https://img.shields.io/github/stars/xiaohuohumax/vscode-export-profiles.svg"/>
 </p>
 
-[English](./README.md)
+[中文](/README_CN.md)
 
 VSCode Extension: Batch Export Profiles
 
