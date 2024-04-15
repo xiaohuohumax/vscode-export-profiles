@@ -1,5 +1,11 @@
 # vscode-export-profiles
 
+## 0.3.0
+
+### Minor Changes
+
+- [`3fc2a2b`](https://github.com/xiaohuohumax/vscode-export-profiles/commit/3fc2a2bf5882e1f8a1f04d39c4b226e7f473018b) Thanks [@xiaohuohumax](https://github.com/xiaohuohumax)! - 记录滚动条状态, 空配置提示不予导出
+
 ## 0.2.1
 
 ### Patch Changes
