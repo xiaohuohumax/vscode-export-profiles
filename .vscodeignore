@@ -1,7 +1,6 @@
 **/*
 !LICENSE
 !package*.json
-!images
 !webview/export-profiles/build
 !out
 !icon.png

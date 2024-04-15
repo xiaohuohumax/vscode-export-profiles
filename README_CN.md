@@ -32,13 +32,7 @@ VSCode 扩展: 批量导出配置文件(profile)
 
 ## 演示
 
-![select-profiles](/images/select-profiles.png)
-![set-profiles](/images/set-profiles.png)
-![import](/images/import.png)
-![select-import](/images/select-import.png)
-![choose-file](/images/choose-file.png)
-![new-profiles](/images/new-profiles.png)
-![result](/images/result.png)
+[![export-profiles.gif](https://cdn.jsdelivr.net/gh/xiaohuohumax/vscode-export-profiles/images/export-profiles.gif)](/images/export-profiles.gif)
 
 # 链接
 
