@@ -34,7 +34,7 @@ Search and install `VSCode Export Profiles` in the VSCode Extension Marketplace
 
 [![export-profiles.gif](https://cdn.jsdelivr.net/gh/xiaohuohumax/vscode-export-profiles/images/export-profiles.gif)](/images/export-profiles.gif)
 
-# Links
+## Links
 
 - [Homepage](https://github.com/xiaohuohumax/vscode-export-profiles#readme)
 - [Issue](https://github.com/xiaohuohumax/vscode-export-profiles/issues)

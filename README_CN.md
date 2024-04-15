@@ -34,7 +34,7 @@ VSCode 扩展: 批量导出配置文件(profile)
 
 [![export-profiles.gif](https://cdn.jsdelivr.net/gh/xiaohuohumax/vscode-export-profiles/images/export-profiles.gif)](/images/export-profiles.gif)
 
-# 链接
+## 链接
 
 - [Homepage](https://github.com/xiaohuohumax/vscode-export-profiles#readme)
 - [Issue](https://github.com/xiaohuohumax/vscode-export-profiles/issues)
