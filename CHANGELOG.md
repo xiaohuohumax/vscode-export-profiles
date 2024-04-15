@@ -1,5 +1,11 @@
 # vscode-export-profiles
 
+## 0.2.1
+
+### Patch Changes
+
+- [`846f87a`](https://github.com/xiaohuohumax/vscode-export-profiles/commit/846f87ac263f6d80f61cbf370282fec77966d25a) Thanks [@xiaohuohumax](https://github.com/xiaohuohumax)! - 修改 readme 描述
+
 ## 0.2.0
 
 ### Minor Changes
