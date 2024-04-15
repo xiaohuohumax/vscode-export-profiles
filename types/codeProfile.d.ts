@@ -18,10 +18,17 @@ interface CodeProfileKeybinding {
   when?: string
 }
 
-// profile 导出
 interface CodeProfile {
+  extensions?: CodeProfileExtension[]
+  settings?: CodeProfileSettings
+  keybindings?: CodeProfileKeybinding[]
+  snippets?: CodeProfileSnippets
+}
+
+// profile 导出
+interface CodeProfileFile {
   name: string
-  extensions: string
+  extensions?: string
   settings?: string
   keybindings?: string
   snippets?: string

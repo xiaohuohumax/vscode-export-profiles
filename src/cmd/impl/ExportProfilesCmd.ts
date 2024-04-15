@@ -40,115 +40,134 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
   }
 
   /**
+   * 格式化需要保存的profile
+   * @param codeProfile 保存结果
+   * @param profile 原始profile
+   * @param resourceKeys 需要保存的资源ID
+   */
+  async formatSaveProfile(codeProfile: Required<CodeProfile>, profile: Profile, resourceKeys: string[]): Promise<void> {
+    // 需要保存资源ID
+    function filterResource<T extends ProfileResourceMeta>(resources: T[]): T[] {
+      return resources.filter(r => resourceKeys.includes(r.key));
+    }
+
+    // 处理扩展配置
+    filterResource(profile.extensions).forEach(e => {
+      if (!codeProfile.extensions.map(e => e.identifier.id).includes(e.identifier.id)) {
+        codeProfile.extensions.push(e);
+      }
+    });
+    // 处理用户设置配置
+    for (const resourceSetting of filterResource(profile.settings)) {
+      const settingPath = Uri.file(resourceSetting.fsPath);
+      const settingData = await fsUtil.readJSONFile<CodeProfileSettings>(settingPath);
+      codeProfile.settings = Object.assign(codeProfile.settings, settingData);
+    }
+
+    // 处理按键绑定配置
+    for (const resourceKeybinding of filterResource(profile.keybindings)) {
+      const keybindingPath = Uri.file(resourceKeybinding.fsPath);
+      const keybindingsData = await fsUtil.readJSONFile<CodeProfileKeybinding[]>(keybindingPath);
+      keybindingsData.forEach(k => {
+        if (!codeProfile.keybindings.some(item => item.key === k.key && item.command === k.command)) {
+          codeProfile.keybindings.push(k);
+        }
+      });
+    }
+    // 处理代码片段配置
+    for (const resourceSnippet of filterResource(profile.snippets)) {
+      const snippetData = await fsUtil.readFile(Uri.file(resourceSnippet.fsPath));
+      const name = resourceSnippet.name;
+
+      // 重复数据不保存
+      if (Object.values(codeProfile.snippets).includes(snippetData)) {
+        continue;
+      }
+
+      // 名称存在，添加随机后缀
+      if (name in codeProfile.snippets && codeProfile.snippets[name] !== snippetData) {
+        let newName = name;
+        do {
+          newName = Math.random().toString(36).substring(2, 9) + name;
+        } while (newName in codeProfile.snippets);
+        codeProfile.snippets[newName] = snippetData;
+      } else {
+        // 名称不存在，直接保存
+        codeProfile.snippets[name] = snippetData;
+      }
+    }
+  }
+
+  /**
    * 格式化需要保存的profiles
-   * @param data profiles
+   * @param saveProfiles profiles
    * @returns 
    */
-  async formatSaveProfiles(data: SaveFileMessageData[]) {
-    const extensions: CodeProfileExtension[] = [];
-    let settings: CodeProfileSettings = {};
-    let keybindings: CodeProfileKeybinding[] = [];
-    const snippets: CodeProfileSnippets = {};
+  async formatSaveProfiles(saveProfiles: SaveFileMessageData[]): Promise<CodeProfileFile> {
+
+    const codeProfile: Required<CodeProfile> = {
+      extensions: [],
+      settings: {},
+      keybindings: [],
+      snippets: {}
+    };
 
     for (const profile of this.profiles) {
-      try {
-        const saveProfile = data.find(d => d.profileTitle === profile.title);
-        if (!saveProfile) {
-          continue;
-        }
-        // 需要保存资源ID
-        // eslint-disable-next-line no-inner-declarations
-        function filterResource<T extends ProfileResourceMeta>(resources: T[]): T[] {
-          return resources.filter(r => saveProfile!.keys.includes(r.key));
-        }
-
-        // 处理扩展配置
-        filterResource(profile.extensions).forEach(e => {
-          if (!extensions.map(e => e.identifier.id).includes(e.identifier.id)) {
-            extensions.push(e);
-          }
-        });
-        // 处理用户设置配置
-        // settings: ProfileResource[]
-        for (const resourceSetting of filterResource(profile.settings)) {
-          const settingPath = Uri.file(resourceSetting.fsPath);
-          const settingData = await fsUtil.readJSONFile<CodeProfileSettings>(settingPath);
-          settings = Object.assign(settings, settingData);
-        }
-
-        // 处理按键绑定配置
-        // keybindings: ProfileResource[]
-        for (const resourceKeybinding of filterResource(profile.keybindings)) {
-          const keybindingPath = Uri.file(resourceKeybinding.fsPath);
-          const keybindingsData = await fsUtil.readJSONFile<CodeProfileKeybinding[]>(keybindingPath);
-          keybindings.push(...keybindingsData);
-        }
-        // 处理代码片段配置
-        // snippets: ProfileResource[]
-        for (const resourceSnippet of filterResource(profile.snippets)) {
-          const snippetData = await fsUtil.readFile(Uri.file(resourceSnippet.fsPath));
-          const name = resourceSnippet.name;
-
-          // 重复数据不保存
-          if (Object.values(snippets).includes(snippetData)) {
-            continue;
-          }
-
-          // 名称存在，添加随机后缀
-          if (name in snippets && snippets[name] !== snippetData) {
-            let newName = name;
-            do {
-              newName = Math.random().toString(36).substring(2, 9) + name;
-            } while (newName in snippets);
-            snippets[newName] = snippetData;
-          } else {
-            // 名称不存在，直接保存
-            snippets[name] = snippetData;
-          }
-        }
-      } catch (err) {
-        log.error('formatSaveProfiles error', err);
+      // 去除异常捕获，全部抛出，否则用户可能不知情
+      const saveProfile = saveProfiles.find(d => d.profileTitle === profile.title);
+      if (saveProfile) {
+        await this.formatSaveProfile(codeProfile, profile, saveProfile.keys);
       }
     }
 
-    const codeProfile: CodeProfile = {
-      name: '',
-      extensions: JSON.stringify(extensions.map(e => ({ identifier: e.identifier, displayName: e.displayName }))),
-    };
+    const codeProfileFile: CodeProfileFile = { name: '' };
+    let dataCount = 0;
 
-    if (Object.values(settings).length !== 0) {
-      codeProfile.settings = JSON.stringify({
-        settings: JSON.stringify(settings, undefined, 4)
+    if (codeProfile.extensions.length !== 0) {
+      const extensions = codeProfile.extensions.map(e => ({
+        identifier: e.identifier,
+        displayName: e.displayName
+      }));
+      codeProfileFile.extensions = JSON.stringify(extensions);
+      dataCount++;
+    }
+
+    if (Object.values(codeProfile.settings).length !== 0) {
+      codeProfileFile.settings = JSON.stringify({
+        settings: JSON.stringify(codeProfile.settings, undefined, 4)
       });
+      dataCount++;
     }
 
-    if (keybindings.length !== 0) {
-      // 去重 命令相同的按键绑定
-      keybindings = keybindings
-        .filter((k, index) =>
-          keybindings.findIndex(item => item.key + item.command === k.key + k.command) === index
-        );
-
-      codeProfile.keybindings = JSON.stringify({
-        keybindings: JSON.stringify(keybindings, undefined, 4)
+    if (codeProfile.keybindings.length !== 0) {
+      codeProfileFile.keybindings = JSON.stringify({
+        keybindings: JSON.stringify(codeProfile.keybindings, undefined, 4)
       });
+      dataCount++;
     }
 
-    if (Object.values(snippets).length !== 0) {
-      codeProfile.snippets = JSON.stringify({ snippets });
+    if (Object.values(codeProfile.snippets).length !== 0) {
+      codeProfileFile.snippets = JSON.stringify({ snippets: codeProfile.snippets });
+      dataCount++;
     }
 
-    return codeProfile;
+    if (dataCount === 0) {
+      throw new EAborted(l10n.t('No data selected for export'));
+    }
+
+    return codeProfileFile;
   }
 
   /**
    * webview请求保存文件
-   * @param data 保存文件信息
+   * @param saveProfiles 保存文件信息
    * @returns 
    */
-  async saveFile(data: SaveFileMessageData[]) {
+  async saveFile(saveProfiles: SaveFileMessageData[]) {
     try {
-      const fileName = data.map(d => d.profileTitle).join(' + ');
+      const codeProfileFile = await this.formatSaveProfiles(saveProfiles);
+
+      const fileName = saveProfiles.map(d => d.profileTitle).join(' + ');
       const saveUri = await window.showSaveDialog({
         title: l10n.t('Save profiles'),
         defaultUri: Uri.file(`${fileName}.${constants.codeProfileFileExt}`),
@@ -163,10 +182,9 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
         return;
       }
 
-      const codeProfile = await this.formatSaveProfiles(data);
-      codeProfile.name = path.basename(saveUri.fsPath, path.extname(saveUri.fsPath));
+      codeProfileFile.name = path.basename(saveUri.fsPath, path.extname(saveUri.fsPath));
 
-      fsUtil.writeFile(saveUri, JSON.stringify(codeProfile, undefined, 4));
+      fsUtil.writeFile(saveUri, JSON.stringify(codeProfileFile, undefined, 4));
 
       // 关闭panel
       ExportProfilesPanel.dispose();
@@ -174,16 +192,13 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
       window.showInformationMessage(l10n.t('Export success'));
       log.info(l10n.t('Export success'));
     } catch (err) {
-      const e = err as Error;
-      window.showErrorMessage(l10n.t('Export failed') + ':' + e.message);
-      log.error(l10n.t('Export failed'));
-      log.error(e.stack);
+      this.catch(err as Error);
     }
   }
 
   /**
-   * webview请求l10n资源
-   */
+     * webview请求l10n资源
+     */
   loadL10n() {
     ExportProfilesPanel.postMessage({
       command: 'loadL10n',

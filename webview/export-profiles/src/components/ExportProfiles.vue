@@ -35,10 +35,9 @@
           <span class="opacity-70">{{ profile.isDefault ? l10n.t('Default profile') : '' }}</span>
         </IxHeader>
         <!-- profile 树形控件 -->
-        <div class="flex-grow-1 overflow-hidden">
-          <IxTree class="py-10" autoHeight v-model:expandedKeys="profile.expandedKeys"
-            v-model:checkedKeys="profile.checkedKeys" blocked checkable :dataSource="profile.treeData"
-            cascaderStrategy="all">
+        <div ref="profileTreeRef" class="flex-grow-1 overflow-y-auto">
+          <IxTree class="py-10" v-model:expandedKeys="profile.expandedKeys" v-model:checkedKeys="profile.checkedKeys"
+            blocked checkable :dataSource="profile.treeData" cascaderStrategy="all">
             <!-- 展开图标 -->
             <template #expandIcon="{ expanded }">
               <IxIcon :name="expanded ? 'down' : 'right'"></IxIcon>
@@ -60,7 +59,7 @@
 <script setup lang="ts">
 import type { TreeNode } from '@idux/components';
 import { IxButton, IxEmpty, IxHeader, IxIcon, IxSpace, IxSpin, IxTree, IxResult } from '@idux/components';
-import { computed, onUnmounted, ref, toRaw } from 'vue';
+import { computed, nextTick, onUnmounted, ref, toRaw, watch } from 'vue';
 import l10n from '../plugin/l10n';
 import vscode, { MessageListener } from '../vscode';
 
@@ -78,6 +77,7 @@ type SteepTreeNode = TreeNode & {
 
 interface ProfileNode {
   title: string
+  scrollTop?: number
   description: string
   isDefault: boolean
   treeData: SteepTreeNode[]
@@ -170,9 +170,7 @@ function init() {
 }
 init()
 
-/**
- * 刷新 profile 事件监听
- */
+// 刷新 profile 事件监听
 const refreshProfilesListener: MessageListener = {
   command: 'refreshProfiles',
   callback: (message: Message<Profile[]>) => message.data && updateProfileNodes(message.data)
@@ -180,16 +178,39 @@ const refreshProfilesListener: MessageListener = {
 vscode.addEventListener(refreshProfilesListener)
 onUnmounted(() => vscode.removeEventListener(refreshProfilesListener))
 
+const profileTreeRef = ref<HTMLDivElement>(null!)
+
+function activeUpdate(steep: number) {
+  // 记录滚动位置
+  profile.value.scrollTop = profileTreeRef.value.scrollTop
+  active.value += steep
+}
+
 // 控件
-const pre = () => active.value -= 1
-const next = () => active.value += 1
+const pre = () => activeUpdate(-1)
+const next = () => activeUpdate(1)
+
 let saveI: number | undefined
 const save = () => {
   if (!saveI) {
     saveI = setTimeout(() => saveI = undefined, 1000)
-    vscode.saveFile(toRaw(profileNodes.value).map(p => ({ profileTitle: p.title, keys: p.checkedKeys })))
+    vscode.saveFile(toRaw(profileNodes.value)
+      .map(p => ({
+        profileTitle: p.title,
+        keys: p.checkedKeys
+      })))
   }
 }
+
+watch(() => active.value, () => {
+  nextTick(() => {
+    // 恢复滚动位置
+    profileTreeRef.value.scrollTo({
+      top: profile.value.scrollTop ?? 0,
+      behavior: 'auto'
+    })
+  })
+})
 
 const profile = computed(() => profileNodes.value[active.value - 1])
 

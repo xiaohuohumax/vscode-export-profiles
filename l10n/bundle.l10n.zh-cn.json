@@ -9,7 +9,7 @@
   "Save profiles": "保存配置文件",
   "Export Profiles": "导出配置文件",
   "Export success": "导出成功",
-  "Export failed": "导出失败",
+  "No data selected for export": "未选择要导出的数据",
   "Select profiles": "选择配置文件",
   "Select profiles to export": "选择要导出的配置文件",
   "Export profiles error: {0}": "导出配置文件异常: {0}",
