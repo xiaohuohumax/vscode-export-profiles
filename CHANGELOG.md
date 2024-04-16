@@ -1,5 +1,11 @@
 # vscode-export-profiles
 
+## 0.4.0
+
+### Minor Changes
+
+- [`ade9148`](https://github.com/xiaohuohumax/vscode-export-profiles/commit/ade9148a8d1a0b1a17d594413d9c1d578e1f1de7) Thanks [@xiaohuohumax](https://github.com/xiaohuohumax)! - 添加单独导出功能, profile 添加快速切换
+
 ## 0.3.0
 
 ### Minor Changes
