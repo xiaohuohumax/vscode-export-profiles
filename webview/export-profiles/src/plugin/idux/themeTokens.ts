@@ -16,7 +16,8 @@ const tokens: DeepPartialThemeTokens = {
       ghostColorHover: 'var(--vscode-button-secondaryHoverBackground)',
       primaryBgColor: 'var(--vscode-button-background)',
       primaryBgColorHover: 'var(--vscode-button-hoverBackground)',
-      primaryColor: 'var(--vscode-button-foreground)'
+      primaryColor: 'var(--vscode-button-foreground)',
+      primaryBgColorActive: 'var(--vscode-button-hoverBackground)',
     },
     checkbox: {
       fieldsetBorderColor: 'var(--vscode-checkbox-border)',

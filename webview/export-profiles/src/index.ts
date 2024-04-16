@@ -1,8 +1,8 @@
 import { createApp } from 'vue';
 import App from './App.vue';
-import './index.css';
 import Idux from './plugin/idux';
 import * as l1on from './plugin/l10n';
+import './index.css';
 
 l1on.init();
 

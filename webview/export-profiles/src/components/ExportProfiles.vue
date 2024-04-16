@@ -16,26 +16,17 @@
         <IxEmpty :description="l10n.t('No profile selected')" />
       </div>
       <!-- profile 详情 -->
-      <div class="py-10 px-14 pb-26 flex flex-col h-full" v-else>
-        <!-- 控件 -->
-        <IxSpace class="fixed bottom-10 right-14 z-50" v-if="hadProfileNode">
-          <IxButton class="w-48" v-if="active > 1" @click="pre">
-            {{ l10n.t('Previous') }}
-          </IxButton>
-          <IxButton class="w-48" v-if="active < profileNodes.length" @click="next">
-            {{ l10n.t('Next') }}
-          </IxButton>
-          <IxButton class="w-48" mode="primary" @click="save">
-            {{ l10n.t('Export') }}
-          </IxButton>
-        </IxSpace>
+      <div class="py-10 px-14 flex flex-col h-full" v-else>
         <!-- 标题 -->
         <IxHeader class="flex-shrink-0 justify-between mb-10" showBar size="lg">
           [{{ active }}/{{ profileNodes.length }}] {{ profile.title }}
           <span class="opacity-70">{{ profile.isDefault ? l10n.t('Default profile') : '' }}</span>
         </IxHeader>
+        <IxRadioGroup v-if="profileNodes.length > 1" mode="primary" @change="radioChange" :value="active" buttoned
+          :dataSource="profileNodes">
+        </IxRadioGroup>
         <!-- profile 树形控件 -->
-        <div ref="profileTreeRef" class="flex-grow-1 overflow-y-auto">
+        <div ref="profileTreeRef" class="flex-grow-1 overflow-y-auto my-3">
           <IxTree class="py-10" v-model:expandedKeys="profile.expandedKeys" v-model:checkedKeys="profile.checkedKeys"
             blocked checkable :dataSource="profile.treeData" cascaderStrategy="all">
             <!-- 展开图标 -->
@@ -51,6 +42,26 @@
             </template>
           </IxTree>
         </div>
+        <!-- 控件 -->
+        <IxSpace v-if="hadProfileNode" justify="end">
+          <IxButton class="w-48" v-if="active > 1" @click="pre">
+            {{ l10n.t('Previous') }}
+          </IxButton>
+          <IxButton class="w-48" v-if="active < profileNodes.length" @click="next">
+            {{ l10n.t('Next') }}
+          </IxButton>
+          <IxButton class="w-48" mode="primary" @click="saveFile('merge')" v-if="profileNodes.length === 1">
+            {{ l10n.t('Export') }}
+          </IxButton>
+          <template v-else>
+            <IxButton class="w-48" mode="primary" @click="saveFile('merge')">
+              {{ l10n.t('Merge export') }}
+            </IxButton>
+            <IxButton class="w-48" mode="primary" @click="saveFile('single')">
+              {{ l10n.t('Single export') }}
+            </IxButton>
+          </template>
+        </IxSpace>
       </div>
     </template>
   </div>
@@ -58,10 +69,10 @@
 
 <script setup lang="ts">
 import type { TreeNode } from '@idux/components';
-import { IxButton, IxEmpty, IxHeader, IxIcon, IxSpace, IxSpin, IxTree, IxResult } from '@idux/components';
+import { IxButton, IxEmpty, IxHeader, IxIcon, IxSpace, IxSpin, IxTree, IxResult, IxRadioGroup } from '@idux/components';
 import { computed, nextTick, onUnmounted, ref, toRaw, watch } from 'vue';
-import l10n from '../plugin/l10n';
 import vscode, { MessageListener } from '../vscode';
+import l10n from '../plugin/l10n';
 
 const spinning = ref(true)
 
@@ -76,6 +87,10 @@ type SteepTreeNode = TreeNode & {
 }
 
 interface ProfileNode {
+  // radio props
+  key: number
+  label: string
+  // profile
   title: string
   scrollTop?: number
   description: string
@@ -109,8 +124,9 @@ function formatProfileResourceTreeData(key: string, resources: ProfileResource[]
 /**
  * 格式化 profile 树形数据
  * @param profile  profile 数据
+ * @param index  profile 索引
  */
-function formatTreeData(profile: Profile): ProfileNode {
+function formatTreeData(profile: Profile, index: number): ProfileNode {
   // 设置
   const settingTreeData: SteepTreeNode = formatProfileResourceTreeData('Settings', profile.settings)
   // 按键绑定
@@ -132,6 +148,8 @@ function formatTreeData(profile: Profile): ProfileNode {
   }
 
   return {
+    key: index + 1,
+    label: profile.title,
     title: profile.title,
     description: profile.title,
     isDefault: profile.isDefault,
@@ -155,7 +173,7 @@ function updateProfileNodes(profiles: Profile[]) {
   spinning.value = true
   active.value = 1
   setTimeout(() => {
-    profileNodes.value = profiles.map(profile => formatTreeData(profile))
+    profileNodes.value = profiles.map((profile, index) => formatTreeData(profile, index))
     spinning.value = false
   }, 1000)
 }
@@ -180,25 +198,51 @@ onUnmounted(() => vscode.removeEventListener(refreshProfilesListener))
 
 const profileTreeRef = ref<HTMLDivElement>(null!)
 
-function activeUpdate(steep: number) {
+function activeUpdate(steep: number, abs: boolean = false) {
   // 记录滚动位置
   profile.value.scrollTop = profileTreeRef.value.scrollTop
-  active.value += steep
+  abs ? (active.value = steep) : (active.value += steep)
 }
 
 // 控件
 const pre = () => activeUpdate(-1)
 const next = () => activeUpdate(1)
+const radioChange = (index: number) => activeUpdate(index, true)
 
 let saveI: number | undefined
-const save = () => {
+function saveFile(exportType: ExportType) {
   if (!saveI) {
     saveI = setTimeout(() => saveI = undefined, 1000)
-    vscode.saveFile(toRaw(profileNodes.value)
-      .map(p => ({
-        profileTitle: p.title,
-        keys: p.checkedKeys
-      })))
+
+    // 检查是否存在空数据导出
+    const emptyProfiles = profileNodes.value.filter(p => p.checkedKeys.length === 0)
+    if (emptyProfiles.length > 0) {
+      if (exportType === 'single') {
+        // 单独导出时，提示空数据
+        vscode.showMessage({
+          type: 'warn',
+          message: l10n.t('No data selected for export') + ': ' + emptyProfiles.map(p => p.title).join(', ')
+        })
+        return
+      } else if (exportType === 'merge' && emptyProfiles.length === profileNodes.value.length) {
+        // 合并导出且所有 profile 为空数据时，提示空数据
+        vscode.showMessage({
+          type: 'warn',
+          message: l10n.t('No data selected for export')
+        })
+        return
+      }
+    }
+
+    // 导出
+    vscode.saveFile({
+      exportType,
+      exportProfiles: toRaw(profileNodes.value)
+        .map(p => ({
+          title: p.title,
+          keys: p.checkedKeys
+        })),
+    })
   }
 }
 

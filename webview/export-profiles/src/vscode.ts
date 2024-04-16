@@ -64,8 +64,16 @@ function openResource(data: OpenResourceMessageData) {
  * 保存文件
  * @param data 保存的文件数据
  */
-function saveFile(data: SaveFileMessageData[]) {
+function saveFile(data: SaveFileMessageData) {
   postMessage({ command: 'saveFile', data });
+}
+
+/**
+ * 显示消息
+ * @param data 消息数据
+ */
+function showMessage(data: ShowMsgMessageData) {
+  postMessage({ command: 'showMessage', data });
 }
 
 /**
@@ -95,11 +103,11 @@ function removeEventListener(listener: MessageListener) {
 }
 
 export default {
-  postMessage,
   getData,
   addEventListener,
   removeEventListener,
   openResource,
   refreshProfiles,
-  saveFile
+  saveFile,
+  showMessage
 };

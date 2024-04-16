@@ -57,6 +57,7 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
         codeProfile.extensions.push(e);
       }
     });
+
     // 处理用户设置配置
     for (const resourceSetting of filterResource(profile.settings)) {
       const settingPath = Uri.file(resourceSetting.fsPath);
@@ -74,6 +75,7 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
         }
       });
     }
+
     // 处理代码片段配置
     for (const resourceSnippet of filterResource(profile.snippets)) {
       const snippetData = await fsUtil.readFile(Uri.file(resourceSnippet.fsPath));
@@ -100,10 +102,10 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
 
   /**
    * 格式化需要保存的profiles
-   * @param saveProfiles profiles
+   * @param exportProfiles profiles
    * @returns 
    */
-  async formatSaveProfiles(saveProfiles: SaveFileMessageData[]): Promise<CodeProfileFile> {
+  async formatSaveProfiles(exportProfiles: ExportProfile[]): Promise<CodeProfileFile> {
 
     const codeProfile: Required<CodeProfile> = {
       extensions: [],
@@ -114,7 +116,7 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
 
     for (const profile of this.profiles) {
       // 去除异常捕获，全部抛出，否则用户可能不知情
-      const saveProfile = saveProfiles.find(d => d.profileTitle === profile.title);
+      const saveProfile = exportProfiles.find(d => d.title === profile.title);
       if (saveProfile) {
         await this.formatSaveProfile(codeProfile, profile, saveProfile.keys);
       }
@@ -152,6 +154,7 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
     }
 
     if (dataCount === 0) {
+      // 已转为 webview 校验，此处只做意外兜底
       throw new EAborted(l10n.t('No data selected for export'));
     }
 
@@ -159,38 +162,86 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
   }
 
   /**
-   * webview请求保存文件
-   * @param saveProfiles 保存文件信息
+   * 合并导出
+   * @param exportProfiles 导出配置
    * @returns 
    */
-  async saveFile(saveProfiles: SaveFileMessageData[]) {
+  async mergeExport(exportProfiles: ExportProfile[]) {
+    const codeProfileFile = await this.formatSaveProfiles(exportProfiles);
+
+    const fileName = exportProfiles.map(d => d.title).join(' + ');
+    const saveUri = await window.showSaveDialog({
+      title: l10n.t('Save profiles'),
+      defaultUri: Uri.file(`${fileName}.${constants.codeProfileFileExt}`),
+      filters: {
+        'Code Profile': [constants.codeProfileFileExt]
+      }
+    });
+
+    if (!saveUri) {
+      throw new EEscAborted(l10n.t('Cancel'));
+    }
+
+    codeProfileFile.name = path.basename(saveUri.fsPath, path.extname(saveUri.fsPath));
+
+    log.debug('save file', saveUri.fsPath, codeProfileFile.name);
+    fsUtil.writeFile(saveUri, JSON.stringify(codeProfileFile, undefined, 4));
+  }
+
+  /**
+   * 单独导出
+   * @param exportProfiles 导出配置
+   */
+  async singleExport(exportProfiles: ExportProfile[]) {
+    const saveFolderUri = await window.showOpenDialog({
+      title: l10n.t('Save profiles'),
+      canSelectFolders: true,
+      canSelectFiles: false,
+      canSelectMany: false
+    });
+
+    if (!saveFolderUri || saveFolderUri.length === 0) {
+      throw new EEscAborted(l10n.t('Cancel'));
+    }
+
+    for (const saveProfile of exportProfiles) {
+      const codeProfileFile = await this.formatSaveProfiles([saveProfile]);
+      codeProfileFile.name = saveProfile.title;
+
+      const saveUri = Uri.joinPath(saveFolderUri[0], `${codeProfileFile.name}.${constants.codeProfileFileExt}`);
+
+      log.debug('save file', saveUri.fsPath, codeProfileFile.name);
+      fsUtil.writeFile(saveUri, JSON.stringify(codeProfileFile, undefined, 4));
+    }
+  }
+
+  /**
+   * webview请求保存文件
+   * @param saveFileMessageData 保存文件信息
+   * @returns 
+   */
+  async saveFile(saveFileMessageData: SaveFileMessageData) {
+    log.debug('save file',
+      saveFileMessageData.exportType,
+      saveFileMessageData.exportProfiles.map(d => d.title)
+    );
+
     try {
-      const codeProfileFile = await this.formatSaveProfiles(saveProfiles);
-
-      const fileName = saveProfiles.map(d => d.profileTitle).join(' + ');
-      const saveUri = await window.showSaveDialog({
-        title: l10n.t('Save profiles'),
-        defaultUri: Uri.file(`${fileName}.${constants.codeProfileFileExt}`),
-        filters: {
-          'Code Profile': [constants.codeProfileFileExt]
-        }
-      });
-
-      if (!saveUri) {
-        window.showWarningMessage(l10n.t('Cancel'));
-        log.warning(l10n.t('Cancel'));
-        return;
+      switch (saveFileMessageData.exportType) {
+        case 'merge':
+          await this.mergeExport(saveFileMessageData.exportProfiles);
+          break;
+        case 'single':
+          await this.singleExport(saveFileMessageData.exportProfiles);
+          break;
+        default:
+          throw new Error('Unknown export type');
       }
 
-      codeProfileFile.name = path.basename(saveUri.fsPath, path.extname(saveUri.fsPath));
-
-      fsUtil.writeFile(saveUri, JSON.stringify(codeProfileFile, undefined, 4));
-
+      window.showInformationMessage(l10n.t('Export complete'));
+      log.info(l10n.t('Export complete'));
       // 关闭panel
       ExportProfilesPanel.dispose();
-
-      window.showInformationMessage(l10n.t('Export success'));
-      log.info(l10n.t('Export success'));
     } catch (err) {
       this.catch(err as Error);
     }
@@ -214,6 +265,19 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
       command: 'ping',
       data: 'pong',
     });
+  }
+
+  /**
+   * webview请求显示消息
+   * @param showMessageMessageData 显示消息信息
+   */
+  showMessage(showMessageMessageData: ShowMsgMessageData) {
+    switch (showMessageMessageData.type) {
+      case 'warn':
+        window.showWarningMessage(showMessageMessageData.message);
+        break;
+      // 待扩展
+    }
   }
 
   init(): void {
@@ -296,8 +360,8 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
       log.warning(error.message);
       return;
     }
-    window.showErrorMessage(l10n.t('Export profiles error: {0}', error.message));
-    log.error('Export profiles error', error);
+    window.showErrorMessage(l10n.t('Export error: {0}', error.message));
+    log.error('Export error', error);
     log.error(error.stack);
   }
 
