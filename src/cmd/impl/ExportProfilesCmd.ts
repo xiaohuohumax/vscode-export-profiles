@@ -40,12 +40,12 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
   }
 
   /**
-   * 格式化需要保存的profile
+   * 合并需要保存的profile
    * @param codeProfile 保存结果
    * @param profile 原始profile
    * @param resourceKeys 需要保存的资源ID
    */
-  async formatSaveProfile(codeProfile: Required<CodeProfile>, profile: Profile, resourceKeys: string[]): Promise<void> {
+  async mergeSaveProfile(codeProfile: Required<CodeProfile>, profile: Profile, resourceKeys: string[]): Promise<void> {
     // 需要保存资源ID
     function filterResource<T extends ProfileResourceMeta>(resources: T[]): T[] {
       return resources.filter(r => resourceKeys.includes(r.key));
@@ -101,11 +101,11 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
   }
 
   /**
-   * 格式化需要保存的profiles
+   * 合并需要保存的profiles
    * @param exportProfiles profiles
    * @returns 
    */
-  async formatSaveProfiles(exportProfiles: ExportProfile[]): Promise<CodeProfileFile> {
+  async mergeSaveProfiles(exportProfiles: ExportProfile[]): Promise<CodeProfileFile> {
 
     const codeProfile: Required<CodeProfile> = {
       extensions: [],
@@ -118,7 +118,7 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
       // 去除异常捕获，全部抛出，否则用户可能不知情
       const saveProfile = exportProfiles.find(d => d.title === profile.title);
       if (saveProfile) {
-        await this.formatSaveProfile(codeProfile, profile, saveProfile.keys);
+        await this.mergeSaveProfile(codeProfile, profile, saveProfile.keys);
       }
     }
 
@@ -167,7 +167,7 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
    * @returns 
    */
   async mergeExport(exportProfiles: ExportProfile[]) {
-    const codeProfileFile = await this.formatSaveProfiles(exportProfiles);
+    const codeProfileFile = await this.mergeSaveProfiles(exportProfiles);
 
     const fileName = exportProfiles.map(d => d.title).join(' + ');
     const saveUri = await window.showSaveDialog({
@@ -205,7 +205,7 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
     }
 
     for (const saveProfile of exportProfiles) {
-      const codeProfileFile = await this.formatSaveProfiles([saveProfile]);
+      const codeProfileFile = await this.mergeSaveProfiles([saveProfile]);
       codeProfileFile.name = saveProfile.title;
 
       const saveUri = Uri.joinPath(saveFolderUri[0], `${codeProfileFile.name}.${constants.codeProfileFileExt}`);
