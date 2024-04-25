@@ -10,7 +10,7 @@
 
 [中文](/README_CN.md)
 
-VSCode Extension: Batch Export Profiles
+VSCode Extension: Batch export profiles, merge multiple profiles.
 
 ## Introduction
 

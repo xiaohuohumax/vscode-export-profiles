@@ -10,7 +10,7 @@
 
 [English](/README.md)
 
-VSCode 扩展: 批量导出配置文件(profile)
+VSCode 扩展: 批量导出配置文件(profile)，合并多个配置文件。
 
 ## 介绍
 
