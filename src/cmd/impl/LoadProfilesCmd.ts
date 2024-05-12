@@ -6,7 +6,7 @@ import os from 'os';
 /**
  * 随机生成字符串
  * @param length 长度
- * @returns 
+ * @returns
  */
 function randomString(length: number) {
   let result = '';
@@ -26,7 +26,7 @@ export class LoadProfilesCmd extends ICmd {
   /**
    * 获取用户Home目录路径
    * @param p 子路径
-   * @returns 
+   * @returns
    */
   protected homePathResolve(...p: string[]) {
     return Uri.joinPath(Uri.file(os.homedir()), ...p);
@@ -35,25 +35,25 @@ export class LoadProfilesCmd extends ICmd {
   /**
    * 获取vscode目录路径 code
    * @param p 子路径
-   * @returns 
+   * @returns
    */
   protected codePathResolve(...p: string[]) {
     return Uri.joinPath(this.context.globalStorageUri, '../../../', ...p);
   }
 
   /**
-   * 获取vscode用户目录路径 user
+   * 获取vscode用户目录路径 User
    * @param p 子路径
-   * @returns 
+   * @returns
    */
   protected userPathResolve(...p: string[]) {
-    return this.codePathResolve('user', ...p);
+    return this.codePathResolve('User', ...p);
   }
 
   /**
    * 获取扩展的显示名称
    * @param extension 扩展
-   * @returns 
+   * @returns
    */
   protected async getExtensionDisplayName(extension: Extension): Promise<string> {
     let packageJson = extensions.all.find(e => e.id === extension.identifier.id)?.packageJSON;
@@ -86,7 +86,7 @@ export class LoadProfilesCmd extends ICmd {
   /**
    * 通过扩展配置文件获取扩展信息
    * @param extensionJsonPath 扩展配置文件路径
-   * @returns 
+   * @returns
    */
   protected async getExtensionByExtensionJsonFile(extensionJsonPath: Uri): Promise<Extension[]> {
     if (!await fsUtil.isExists(extensionJsonPath)) {
@@ -104,7 +104,7 @@ export class LoadProfilesCmd extends ICmd {
    * user/profiles/xxx/extensions.json
    * ```
    * @param userDataProfile 用户数据配置信息
-   * @returns 
+   * @returns
    */
   protected async getExtensionsByUserDataProfile(userDataProfile: UserDataProfile): Promise<ProfileExtension[]> {
     const extensions: Extension[] = [];
@@ -137,7 +137,7 @@ export class LoadProfilesCmd extends ICmd {
   }
 
   /**
-   * 通过用户数据配置文件获取用户设置信息 
+   * 通过用户数据配置文件获取用户设置信息
    * ```
    * // 全局设置
    * user/settings.json
@@ -145,7 +145,7 @@ export class LoadProfilesCmd extends ICmd {
    * user/profiles/xxx/settings.json
    * ```
    * @param userDataProfile 用户数据配置信息
-   * @returns 
+   * @returns
    */
   protected async getSettingsByUserDataProfile(userDataProfile: UserDataProfile): Promise<ProfileResource[]> {
     let isDefault = true;
@@ -178,7 +178,7 @@ export class LoadProfilesCmd extends ICmd {
    * user/profiles/xxx/keybindings.json
    * ```
    * @param userDataProfile 用户数据配置信息
-   * @returns 
+   * @returns
    */
   protected async getKeybindingsByUserDataProfile(userDataProfile: UserDataProfile): Promise<ProfileResource[]> {
     let isDefault = true;
@@ -211,7 +211,7 @@ export class LoadProfilesCmd extends ICmd {
    * user/profiles/xxx/snippets/*
    * ```
    * @param userDataProfile 用户数据配置信息
-   * @returns 
+   * @returns
    */
   protected async getSnippetsByUserDataProfile(userDataProfile: UserDataProfile): Promise<ProfileResource[]> {
     let isDefault = true;
@@ -239,7 +239,7 @@ export class LoadProfilesCmd extends ICmd {
 
   /**
    * 获取 Storage 信息
-   * @returns 
+   * @returns
    */
   protected async getStorage(): Promise<Storage> {
     // 获取全部profiles概述信息
@@ -250,7 +250,7 @@ export class LoadProfilesCmd extends ICmd {
   /**
    * 格式化用户数据配置文件信息
    * @param userDataProfiles 用户数据配置信息
-   * @returns 
+   * @returns
    */
   protected async formatUserDataProfiles(userDataProfiles: UserDataProfile[]): Promise<Profile[]> {
     const result: Profile[] = [];
