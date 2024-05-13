@@ -1,5 +1,11 @@
 # vscode-export-profiles
 
+## 0.4.1
+
+### Patch Changes
+
+- 修复非 window 系统用户配置路径错误 user->User
+
 ## 0.4.0
 
 ### Minor Changes
