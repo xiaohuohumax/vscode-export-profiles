@@ -33,7 +33,7 @@ export class LoadProfilesCmd extends ICmd {
   }
 
   /**
-   * 获取vscode目录路径 code
+   * 获取vscode目录路径 Code
    * @param p 子路径
    * @returns 
    */
@@ -42,12 +42,12 @@ export class LoadProfilesCmd extends ICmd {
   }
 
   /**
-   * 获取vscode用户目录路径 user
+   * 获取vscode用户目录路径 User
    * @param p 子路径
    * @returns 
    */
   protected userPathResolve(...p: string[]) {
-    return this.codePathResolve('user', ...p);
+    return this.codePathResolve('User', ...p);
   }
 
   /**
@@ -101,7 +101,7 @@ export class LoadProfilesCmd extends ICmd {
    * // 全局扩展
    * .vscode/extensions/extensions.json
    * // profile扩展
-   * user/profiles/xxx/extensions.json
+   * User/profiles/xxx/extensions.json
    * ```
    * @param userDataProfile 用户数据配置信息
    * @returns 
@@ -137,12 +137,12 @@ export class LoadProfilesCmd extends ICmd {
   }
 
   /**
-   * 通过用户数据配置文件获取用户设置信息 
+   * 通过用户数据配置文件获取用户设置信息
    * ```
    * // 全局设置
-   * user/settings.json
+   * User/settings.json
    * // profile设置
-   * user/profiles/xxx/settings.json
+   * User/profiles/xxx/settings.json
    * ```
    * @param userDataProfile 用户数据配置信息
    * @returns 
@@ -173,9 +173,9 @@ export class LoadProfilesCmd extends ICmd {
    * 通过用户数据配置文件获取按键绑定信息
    * ```
    * // 全局按键绑定
-   * user/keybindings.json
+   * User/keybindings.json
    * // profile按键绑定
-   * user/profiles/xxx/keybindings.json
+   * User/profiles/xxx/keybindings.json
    * ```
    * @param userDataProfile 用户数据配置信息
    * @returns 
@@ -206,9 +206,9 @@ export class LoadProfilesCmd extends ICmd {
    * 通过用户数据配置文件获取代码片段信息
    * ```
    * // 全局代码片段
-   * user/snippets/*
+   * User/snippets/*
    * // profile代码片段
-   * user/profiles/xxx/snippets/*
+   * User/profiles/xxx/snippets/*
    * ```
    * @param userDataProfile 用户数据配置信息
    * @returns 
