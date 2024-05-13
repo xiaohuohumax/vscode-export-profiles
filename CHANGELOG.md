@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- 修复非 window 系统用户配置路径错误 user->User
+- [`8297ca3`](https://github.com/xiaohuohumax/vscode-export-profiles/commit/8297ca3688c0110d9c35bebb4eda865fb7efbf18) Thanks [@wtklbm](https://github.com/wtklbm)! - 修复非 window 系统用户配置路径错误 user->User
 
 ## 0.4.0
 
