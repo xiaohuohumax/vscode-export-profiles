@@ -1,14 +1,6 @@
 import * as l1on from '@vscode/l10n';
-import vscode from '../vscode.ts';
 
-/**
- * 初始化 l10n 模块
- */
-async function init() {
-  const contents = await vscode.getData<l1on.l10nJsonFormat>({ command: 'loadL10n' }, -1);
-  l1on.config({ contents });
-}
-
-export { init };
+// l10n 通过全局变量 _l10nContents 获取
+l1on.config({ contents: window._l10nContents });
 
 export default l1on;

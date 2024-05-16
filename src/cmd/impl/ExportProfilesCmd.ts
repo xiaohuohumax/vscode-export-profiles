@@ -248,16 +248,6 @@ export class ExportProfilesCmd extends LoadProfilesCmd implements CommandCallbac
   }
 
   /**
-   * webview请求l10n资源
-   */
-  loadL10n() {
-    ExportProfilesPanel.postMessage({
-      command: 'loadL10n',
-      data: l10n.bundle,
-    });
-  }
-
-  /**
    * webview请求ping
    */
   ping() {

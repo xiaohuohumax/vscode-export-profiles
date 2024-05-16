@@ -28,6 +28,7 @@ function _getWebviewContent(webview: Webview, extensionUri: Uri) {
       </head>
       <body>
         <div id="app"></div>
+        <script> window._l10nContents = ${JSON.stringify(l10n.bundle)}; </script>
         <script type="module" src="${scriptUri}"></script>
       </body>
     </html>
