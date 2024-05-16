@@ -1,5 +1,11 @@
 # vscode-export-profiles
 
+## 0.4.2
+
+### Patch Changes
+
+- [`9c032b0`](https://github.com/xiaohuohumax/vscode-export-profiles/commit/9c032b0d1bc440e9e88be48f0ca3250feb1d9f87) Thanks [@xiaohuohumax](https://github.com/xiaohuohumax)! - webview l1on 修改为通过全局变量获取
+
 ## 0.4.1
 
 ### Patch Changes
