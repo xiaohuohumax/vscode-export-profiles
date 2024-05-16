@@ -3,7 +3,7 @@
   "displayName": "VSCode Export Profiles",
   "description": "vscode export profiles",
   "private": true,
-  "version": "0.4.1",
+  "version": "0.4.2",
   "publisher": "xiaohuohumax",
   "icon": "icon.png",
   "repository": {
